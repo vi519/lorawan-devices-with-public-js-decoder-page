@@ -1,29 +1,32 @@
 /* This example requires Tailwind CSS v2.0+ */
 import useDevices from "./api_devices"
 
-const examplePayload = [
-  {
-    "albumId": 1,
-    "id": 1,
-    "title": "accusamus beatae ad facilis cum similique qui sunt",
-    "url": "https://via.placeholder.com/600/92c952",
-    "thumbnailUrl": "https://via.placeholder.com/150/92c952"
-  },
-  {
-    "albumId": 1,
-    "id": 2,
-    "title": "reprehenderit est deserunt velit ipsam",
-    "url": "https://via.placeholder.com/600/771796",
-    "thumbnailUrl": "https://via.placeholder.com/150/771796"
-  },
-  {
-    "albumId": 1,
-    "id": 3,
-    "title": "officia porro iure quia iusto qui ipsa ut modi",
-    "url": "https://via.placeholder.com/600/24f355",
-    "thumbnailUrl": "https://via.placeholder.com/150/24f355"
-  },
-]
+const examplePayload = {
+  "devices": [
+    {
+      "id": "example/windsensor",
+      "name": "Wind Sensor",
+      "description": "Wind Sensor with controllable LED",
+      "vendor-name": "Example",
+      "image-url": "https://raw.githubusercontent.com/TheThingsNetwork/lorawan-devices/master/vendor/example/windsensor.jpg",
+      "sensors": [
+        "wind direction",
+        "wind speed"
+      ],
+      "has-js-codec": true
+    },
+    {
+      "id": "adeunis/pulse",
+      "name": "Pulse",
+      "description": "The Adeunis Pulse impulse interface allows connecting up to 2 connectable meters (water, gas, electricity, etc) and provides LoRaWAN® connectivity.",
+      "vendor-name": "Adeunis",
+      "image-url": "https://raw.githubusercontent.com/TheThingsNetwork/lorawan-devices/master/vendor/adeunis/pulse.png",
+      "sensors": [
+        "pulse count"
+      ],
+      "has-js-codec": false
+    }]
+}
 
 export default function Table() {
   const { devices, isLoading, error } = useDevices()
@@ -31,9 +34,9 @@ export default function Table() {
   if (error) return <div>failed to load</div>
   if (isLoading) return <div>loading...</div>
 
-  const filterA = devices.slice(0, 10);
+  const filterA = devices.devices.slice(0);
   console.log(filterA);
-  const sorted = [...filterA].sort((a, b) => b.id - a.id);
+  const sorted = [...filterA].sort((a, b) => b['vendor-name'] - a['vendor-name']);
   console.log(sorted);
 
   return (
@@ -44,30 +47,11 @@ export default function Table() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Name
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Title
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Status
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Role
-                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor Name</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Has JS codec</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sensors</th>
                   <th scope="col" className="relative px-6 py-3">
                     <span className="sr-only">Edit</span>
                   </th>
@@ -79,26 +63,27 @@ export default function Table() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
-                          <img className="h-10 w-10 rounded-full" src={device.thumbnailUrl} alt="" />
+                          <img className="h-10 w-10 rounded-full" src={device['image-url']} alt="" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{device.id}</div>
+                          <div className="text-sm font-medium text-gray-900">{device.name.slice(0, 20)}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{device.title}</div>
+                      <div className="text-sm text-gray-900">{device['vendor-name'].slice(0)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Active
+                      <div className="text-sm text-gray-900">{device.description.slice(0, 60)}...</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${device['has-js-codec'] ? 'bg-green-100' : 'bg-red-100'} text-green-800`}>
+                        {device['has-js-codec'] ? 'true' : 'false'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.url}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.sensors.join('|').slice(0, 20)}...</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <a href={device.url} target="_blank" rel="noopener" className="text-indigo-600 hover:text-indigo-900">
-                        Open
-                      </a>
+                      <a href={device['image-url']} target="_blank" rel="noopener" className="text-indigo-600 hover:text-indigo-900">Open</a>
                     </td>
                   </tr>
                 ))}
