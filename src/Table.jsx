@@ -34,7 +34,7 @@ export default function Table() {
   if (error) return <div>failed to load</div>
   if (isLoading) return <div>loading...</div>
 
-  const filterA = devices.devices.slice(0);
+  const filterA = devices.devices.slice(0, 30);
   console.log(filterA);
   const sorted = [...filterA].sort((a, b) => b['vendor-name'] - a['vendor-name']);
   console.log(sorted);
